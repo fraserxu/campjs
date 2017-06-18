@@ -1,22 +1,24 @@
-const {app, BrowserWindow, ipcMain} = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
-const { spawn } = require('child_process');
+const { spawn } = require('child_process')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({width: 800, height: 600})
+  win = new BrowserWindow({ width: 800, height: 600 })
 
   // and load the index.html of the app.
-  win.loadURL(url.format({
-    pathname: path.join(__dirname, 'youtube-dl.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  win.loadURL(
+    url.format({
+      pathname: path.join(__dirname, 'youtube-dl.html'),
+      protocol: 'file:',
+      slashes: true
+    })
+  )
 
   // Open the DevTools.
   // win.webContents.openDevTools()
@@ -55,25 +57,44 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
+const formatMsg = msgs => {
+  // time="2017-06-18T12:07:27+10:00" level=info msg="Fetching video info..."
+  const [time, level, ...msg] = msgs.split(' ')
+  const levelInfo = level.split('=')[1]
+  const msgInfo = msg.join(' ').split('=')[1].split('"')[1]
+  return `[${levelInfo}]: ${msgInfo}`
+}
+
 ipcMain.on('start-download', (event, arg) => {
   const desktopPath = app.getPath('desktop')
-  const dl = spawn('youtube-dl', [
-    '-o', `${desktopPath}/%(title)s.%(ext)s`,
+  const getInfo = spawn('./bin/ytdl', ['--info', arg])
+  const dl = spawn('./bin/ytdl', [
+    '--no-progress',
+    '-o',
+    `${desktopPath}/{{.Title}}.{{.Ext}}`,
     arg
   ])
-  console.log('[electron youtube-dl] Start downloading')
 
-  dl.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-    event.sender.send('download-status', data.toString())
-  });
+  console.log('[electron youtube-dl] Starting download...')
+  event.sender.send(
+    'download-status',
+    '[electron youtube-dl] Starting download...'
+  )
+  dl.stdout.on('data', data => {
+    console.log(`stdout: ${data}`)
+    event.sender.send('download-status', formatMsg(data.toString()))
+  })
 
-  dl.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
-  });
+  dl.stderr.on('data', data => {
+    console.log(`stderr: ${data}`)
+  })
 
-  dl.on('close', (code) => {
-    event.sender.send('download-success')
-    console.log(`child process exited with code ${code}`);
-  });
+  dl.on('close', code => {
+    // event.sender.send('download-success')
+    console.log(`child process exited with code ${code}`)
+    event.sender.send(
+      'download-status',
+      '[electron youtube-dl] Finished download'
+    )
+  })
 })
