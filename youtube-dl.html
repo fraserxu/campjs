@@ -6,6 +6,10 @@
   <title>youtube-dl</title>
 </head>
 <style>
+  .system-sans-serif {
+    font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, Segoe UI, lucida grande, helvetica neue, helvetica, Fira Sans, roboto, noto, Droid Sans, cantarell, oxygen, ubuntu, franklin gothic medium, century gothic, Liberation Sans, sans-serif
+  }
+
   body {
     width: 100%;
     margin: 0 auto;
@@ -13,13 +17,22 @@
   }
 
   header {
-    margin: 20px auto;
+    margin: 20px auto 40px;
+    padding: 40px 0 0;
+    font-size: 24px;
   }
 
   main {
     position: relative;
     margin: 20px auto;
-    width: 60%;
+    width: 80%;
+  }
+
+  #input {
+    padding: 10px;
+    font-size: 14px;
+    min-width: 300px;
+    outline: none;
   }
 
   #status {
@@ -27,16 +40,29 @@
     width: 100%;
     border: 1px solid #ccc;
     overflow-y: scroll;
-    margin: 20px auto;
+    margin: 40px auto;
     text-align: left;
+    padding: 5px;
+  }
+
+  #download {
+    background-color: #4CAF50;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 11px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
   }
 </style>
 
-<body>
-  <header>youtube-dl</header>
+<body class="system-sans-serif">
+  <header>Electron Youtube Downloader</header>
 
   <main>
-    <input id="input" type="text" placeholder="Paste youtube url here" />
+    <input id="input" type="text" autofocus placeholder="Paste youtube url here" />
     <button id="download">Download</button>
     <div id="status">
       <div>
@@ -48,11 +74,18 @@
     const downloadButton = document.getElementById('download')
     const urlInput = document.getElementById('input')
     const statusBar = document.getElementById('status')
-
-    downloadButton.addEventListener('click', () => {
+    const startDownload = () => {
       const youtubeUrl = urlInput.value
+      if (!youtubeUrl) return
       ipc.send('start-download', youtubeUrl)
-    })
+    }
+
+    downloadButton.addEventListener('click', startDownload)
+    urlInput.onkeypress = event => {
+      if (event.keyCode === 13) {
+        startDownload()
+      }
+    }
 
     ipc.on('download-status', (event, arg) => {
       const msgElement = document.createElement('span')
