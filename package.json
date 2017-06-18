@@ -10,6 +10,8 @@
     "electron": "^1.6.11"
   },
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack:win32-x64": "electron-packager . electron-ytdl --overwrite --platform=win32 --arch=x64",
+    "pack:darwin-x64": "electron-packager . electron-ytdl --overwrite --platform=darwin --arch=x64"
   }
 }

@@ -1,7 +1,45 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const url = require('url')
 const { spawn } = require('child_process')
+
+const ytdlPath = path.join(__dirname, './bin/ytdl')
+
+// enable copy and paste
+const template = [
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { role: 'pasteandmatchstyle' },
+      { role: 'delete' },
+      { role: 'selectall' }
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      { role: 'reload' },
+      { role: 'forcereload' },
+      { role: 'toggledevtools' },
+      { type: 'separator' },
+      { role: 'resetzoom' },
+      { role: 'zoomin' },
+      { role: 'zoomout' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' }
+    ]
+  },
+  {
+    role: 'window',
+    submenu: [{ role: 'minimize' }, { role: 'close' }]
+  }
+]
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -35,7 +73,11 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+  createWindow()
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -67,8 +109,7 @@ const formatMsg = msgs => {
 
 ipcMain.on('start-download', (event, arg) => {
   const desktopPath = app.getPath('desktop')
-  const getInfo = spawn('./bin/ytdl', ['--info', arg])
-  const dl = spawn('./bin/ytdl', [
+  const dl = spawn(ytdlPath, [
     '--no-progress',
     '-o',
     `${desktopPath}/{{.Title}}.{{.Ext}}`,
