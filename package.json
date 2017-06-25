@@ -7,7 +7,9 @@
   "author": "Fraser Xu",
   "license": "MIT",
   "dependencies": {
-    "electron": "^1.6.11"
+    "electron": "^1.6.11",
+    "electron-stream": "^5.0.4",
+    "minimist": "^1.2.0"
   },
   "scripts": {
     "start": "electron .",

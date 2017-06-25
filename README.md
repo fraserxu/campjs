@@ -295,3 +295,128 @@ app.on('ready', () => {
   createWindow()
 })
 ```
+
+#### Writting Command line tools with Electron
+
+Electron CLI
+
+```sh
+electron --help
+Electron 1.6.11 - Build cross platform desktop apps with JavaScript, HTML, and CSS
+
+  Usage: electron [options] [path]
+
+  A path to an Electron app may be specified. The path must be one of the following:
+
+    - index.js file.
+    - Folder containing a package.json file.
+    - Folder containing an index.js file.
+    - .html/.htm file.
+    - http://, https://, or file:// URL.
+
+  Options:
+    -h, --help            Print this usage message.
+    -i, --interactive     Open a REPL to the main process.
+    -r, --require         Module to preload (option can be repeated)
+    -v, --version         Print the version.
+    --abi                 Print the application binary interface.
+```
+
+[parse argument options](https://www.npmjs.com/package/minimist)
+
+```js
+const minimist = require('minimist')
+const argv = minimist(process.argv.slice(2))
+console.log({ argv })
+```
+
+```sh
+$ node ./bin/cmd.js --input=https://fraserxu.me --output=fraserxu.pdf
+$ { argv: { _: [], input: 'https://fraserxu.me', output: 'fraserxu.pdf' } }
+```
+
+Prepare boilerplate to launch electron from CLI
+
+```js
+#!/usr/bin/env node
+
+const spawn = require('child_process').spawn
+const electronPath = require('electron')
+const path = require('path')
+
+const generatorPath = path.resolve(__dirname, '../pdf.js')
+
+let args = process.argv.slice(2)
+args.unshift(generatorPath)
+
+// node ./bin/cmd.js --input=https://fraserxu.me --output=fraserxu.pdf
+// return electron pdf.js --input=https://fraserxu.me --output=fraserxu.me.pdf
+
+const cp = spawn(electronPath, args, {
+  //       stdin,     stdout,    stderr
+  stdio: ['inherit', 'inherit', 'pipe', 'ipc']
+})
+
+cp.stderr.on('data', data => {
+  const str = data.toString('utf8')
+  // it's Chromium, don't do anything
+  if (str.match(/^\[\d+:\d+/)) return
+  process.stderr.write(data)
+})
+```
+
+And then we can creat our pdf generator
+
+```js
+const fs = require('fs')
+const path = require('path')
+const minimist = require('minimist')
+const { app, BrowserWindow, shell } = require('electron')
+
+const argv = minimist(process.argv.slice(2))
+
+const {
+  input,
+  output
+} = argv
+
+let win
+
+const createWindow = () => {
+  win = new BrowserWindow({
+    show: false
+  })
+
+  win.loadURL(input)
+
+  // https://electron.atom.io/docs/api/web-contents/
+  let contents = win.webContents
+
+  const desktopPath = app.getPath('desktop')
+  const pdfPath = path.join(desktopPath, output)
+  contents.on('did-finish-load', () => {
+    contents.printToPDF({
+      printBackground: true
+    }, (err, data) => {
+      if (err) throw err
+      fs.writeFile(pdfPath, data, err => {
+        if (err) throw err
+        console.log('success write file to ', pdfPath)
+        shell.openExternal('file://' + pdfPath)
+        process.exit(0)
+      })
+    })
+  })
+}
+
+app.on('ready', createWindow)
+```
+
+Result
+
+```shell
+node ./bin/cmd.js --input=http://viii.campjs.com/ --output=viii.campjs.com.pdf
+success write file to  /Users/fraserxu/Desktop/viii.campjs.com.pdf
+```
+
+#### "Abusing" the Browser API and Create Mad Science
