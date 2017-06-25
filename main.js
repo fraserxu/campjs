@@ -3,7 +3,10 @@ const path = require('path')
 const url = require('url')
 const { spawn } = require('child_process')
 
-const ytdlPath = path.join(__dirname, './bin/ytdl')
+let ytdlPath = path.join(__dirname, './bin/ytdl')
+if (process.platform === 'win32') {
+  ytdlPath += '.exe'
+}
 
 // enable copy and paste
 const template = [
