@@ -415,8 +415,22 @@ app.on('ready', createWindow)
 Result
 
 ```shell
-node ./bin/cmd.js --input=http://viii.campjs.com/ --output=viii.campjs.com.pdf
+$ node ./bin/cmd.js --input=http://viii.campjs.com/ --output=viii.campjs.com.pdf
 success write file to  /Users/fraserxu/Desktop/viii.campjs.com.pdf
 ```
+
+#### Running Headless JavaScript Testing with Electron On Any CI Server
+
+```js
+process.stdin
+  .pipe(runner)
+  .on('results', results {
+    process.exit(Number(!results.ok))
+  })
+```
+
+* [Running Headless JavaScript Testing with Electron On Any CI Server](https://webuild.envato.com/blog/running-headless-javascript-testing-with-electron-on-any-ci-server/)
+* [tape-run](https://github.com/juliangruber/tape-run)
+* [electron-mocha](https://github.com/jprichardson/electron-mocha)
 
 #### "Abusing" the Browser API and Create Mad Science

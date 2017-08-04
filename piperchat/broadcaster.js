@@ -15,10 +15,11 @@ const streamToWebmBuffer = (chunk, cb) => {
   })
   const reader = new FileReader()
 
-  reader.onload = () => {
+  reader.addEventListener('loadend', () => {
+    console.log('loadend....')
     let buffer = new Buffer(reader.result)
     cb(buffer)
-  }
+  })
 
   reader.readAsArrayBuffer(blob)
 }
@@ -31,7 +32,7 @@ getMedia(mediaConstraints, (err, media) => {
   stream.on('data', data => {
     streamToWebmBuffer(data, buffer => {
       client.seed(buffer, torrent => {
-        console.log('Client is seeding: ', torrent)
+        console.log('Client is seeding: ', torrent.magnetURI)
       })
 
       client.on('error', error => {
