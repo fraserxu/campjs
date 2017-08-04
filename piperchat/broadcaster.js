@@ -5,7 +5,7 @@ const WebTorrent = require('webtorrent')
 const client = new WebTorrent()
 
 const mediaConstraints = {
-  audio: true,
+  audio: false,
   video: true
 }
 
@@ -42,8 +42,8 @@ getMedia(mediaConstraints, (err, media) => {
   })
 
   // lets display the recorded video as well
-  // let video = document.createElement('video')
-  // video.src = URL.createObjectURL(stream.media)
-  // video.autoplay = true
-  // document.body.appendChild(video)
+  let video = document.createElement('video')
+  video.src = URL.createObjectURL(stream.media)
+  video.autoplay = true
+  document.body.appendChild(video)
 })
