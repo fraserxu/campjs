@@ -530,6 +530,187 @@ success write file to  /Users/fraserxu/Desktop/viii.campjs.com.pdf
 
 ---
 
+# [fit] "Abusing" the Browser API and Create Mad Science
+
+---
+
+# 🎩
+
+* Access to file system
+* getUserMedia
+* WebRTC
+* WebRTC data channels
+
+---
+
+## getUserMedia()
+
+```js
+const getMedia = require('getusermedia')
+const recorder = require('media-recorder-stream')
+
+getMedia(mediaConstraints, (err, media) => {
+  if (err) throw err
+
+  // record media every 5s
+  let stream = recorder(media, {interval: 5000})
+
+  stream.on('data', data => {
+    // figure out a way to distribute it 🤔
+  })
+})
+```
+
+---
+
+## [fit] 1. With WebTorrent
+
+---
+
+```js
+const WebTorrent = require('webtorrent')
+
+const client = new WebTorrent()
+
+client.seed(buffer, torrent => {
+  console.log('Client is seeding: ', torrent.magnetURI)
+})
+```
+
+---
+
+### Distribute the torrent information through WebSocket
+
+```js
+const socket = io()
+const torrentsSocket = io('/torrents')
+
+client.seed(buffer, torrent => {
+  // send torrent to the socket channel
+  io.emit('torrent', torrent)
+})
+```
+
+---
+
+## Download torrent and play
+
+```js
+const WebTorrent = require('webtorrent')
+const socket = io()
+const torrentsSocket = io('/torrents')
+
+torrentsSocket.on('torrent', (id, torrent) => {
+  // download torrent
+  const client = new WebTorrent()
+
+  client.add(torrentmagnetURI)
+
+  client.on('download', function (bytes) {
+    // play video bytes
+  })
+})
+```
+
+---
+
+## See it in action
+
+> Scalable peer-to-peer live video streaming
+-- https://nilejs.com
+
+---
+
+## [fit] 2. With Dat
+
+---
+
+# Hypercore
+
+> Hypercore is a secure, distributed append-only log.
+
+---
+
+```js
+const hypercore = require('hypercore')
+
+let feed = hypercore(`./streams/broadcasted/${ Date.now ()}`)
+
+stream.on('data', data => {
+  // figure out a way to distribute it 🤔
+  feed.append(data)
+})
+```
+
+---
+
+# Hyperdiscovery
+
+> Join the p2p swarm for hypercore and hyperdrive feeds. Uses discovery-swarm under the hood.
+
+---
+
+```js
+const hyperdiscovery = require('hyperdiscovery')
+
+let feed = hypercore(`./streams/broadcasted/${ Date.now ()}`)
+let swarm
+
+// when feed is ready, join p2p swarm
+feed.on('ready', function () {
+  swarm = hyperdiscovery(feed, {live: true})
+})
+
+```
+
+---
+
+# Viewer
+
+```js
+const hypercore = require('hypercore')
+const hyperdiscovery = require('hyperdiscovery')
+
+// create local feed
+let feed = hypercore(
+  localKey,        // the directory to store local data
+  hash,            // the hash to the feed
+  { sparse: true } // mark the entire feed to be downloaded
+)
+
+let swarm
+feed.on('ready', () => {
+  // start to sync data!
+  swarm = hyperdiscovery(feed, {live: true})
+})
+```
+
+---
+
+# Play it
+
+```js
+// play with vlc
+const args = [
+  '--play-and-exit',
+  '--video-on-top',
+  '--quiet',
+  '--meta-title=campjs',
+  dataPath
+]
+vlcCommand((err, cmd) => {
+  cp.spawn(cmd, args)
+})
+```
+
+---
+
+## hypervision
+
+> hypervision is a desktop application that lets you both watch and broadcast p2p live streams.
+-- https://github.com/mafintosh/hypervision
+
+---
 
 ### Running Headless JavaScript Test
 
@@ -551,10 +732,6 @@ process.stdin
 
 ---
 
-# [fit] "Abusing" the Browser API and Create Mad Science
-
----
-
 ## electron-speech
 
 > Speech recognition in node and the browser using Electron.
@@ -572,24 +749,6 @@ if ('webkitSpeechRecognition' in window) {
   recognition.onend = function() { /* */ }
 }
 ```
-
----
-
-## hypervision
-
-> hypervision is a desktop application that lets you both watch and broadcast p2p live streams.
--- https://github.com/mafintosh/hypervision
-
-* electron
-* getusermedia
-* hypercore
-* hyperdiscovery
-
----
-
-## Related
-
-* [nilejs.com](nilejs.com) - Scalable peer-to-peer live video streaming
 
 ---
 
