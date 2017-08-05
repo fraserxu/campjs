@@ -580,7 +580,6 @@ if ('webkitSpeechRecognition' in window) {
 > hypervision is a desktop application that lets you both watch and broadcast p2p live streams.
 -- https://github.com/mafintosh/hypervision
 
-
 * electron
 * getusermedia
 * hypercore
@@ -600,6 +599,10 @@ Quick Start
 
 * https://electron.atom.io/docs/tutorial/quick-start/
 * https://github.com/electron/electron-api-demos
+
+---
+
+![inline](./imgs/twitter.png)
 
 ---
 
