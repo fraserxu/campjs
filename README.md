@@ -1,18 +1,27 @@
-### Mad Science With Electron
-[@fraserxu](https://twitter.com/fraserxu)
+footer: @fraserxu
+slidenumbers: true
 
-#### What is Electron?
+# [fit] Mad Science With Electron
+
+---
+
+# About me
+
+![inline 50%](https://avatars1.githubusercontent.com/u/1183541?v=4&s=460)
+
+@fraserxu
+JavaScript Developer @Envato
+
+---
+
+# What is Electron?
 
 > Build cross platform desktop apps with JavaScript, HTML, and CSS
+-- https://electron.atom.io/
 
-https://electron.atom.io/
+---
 
-#### Quick Start
-
-* https://electron.atom.io/docs/tutorial/quick-start/
-* https://github.com/electron/electron-api-demos
-
-#### Apps Build on Electron
+# Apps Build With Electron
 
 * Slack
 * Atom
@@ -20,53 +29,72 @@ https://electron.atom.io/
 * WebTorrent
 * Hyper
 
-#### Features
+---
 
-##### Main Process
+# Concept
 
-> In Electron, the process that runs package.json’s main script is called the main process. The script that runs in the main process can display a GUI by creating web pages.
+![inline 50%](./imgs/components.png)
 
-#### Renderer Process
+---
 
-> Since Electron uses Chromium for displaying web pages, Chromium’s multi-process architecture is also used. Each web page in Electron runs in its own process, which is called the renderer process.
+![inline](./imgs/like-this.png)
 
-Generally, an Electron app is structured like this:
+---
+
+## Main Process
+
+> In Electron, the process that runs `package.json`’s main script is called the `main process`. The script that runs in the main process can display a GUI by creating web pages.
+
+* Create renderer process
+* Call native elements
+* Start and quite app
+
+---
+
+## Renderer Process
+
+> Since Electron uses Chromium for displaying web pages, Chromium’s multi-process architecture is also used. Each web page in Electron runs in its own process, which is called the `renderer process`.
+
+* Design your page with HTML & CSS
+* JavaScript page interactions
+
+---
+
+## Application structure
+
 
 ```
-your-app/
+mad-science-with-electron-campjs/
 ├── package.json
 ├── main.js
 └── index.html
 ```
 
-An example of your package.json might look like this:
+---
+
+#### An example of your package.json might look like this:
 
 ```JSON
 {
-  "name"    : "your-app",
-  "version" : "0.1.0",
-  "main"    : "main.js"
+  "name": "mad-science-with-electron-campjs",
+  "version": "0.1.0",
+  "main": "main.js"
 }
 ```
 
-#### Create UI
+---
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Hello World!</title>
-</head>
-<body>
-  <h1>Hello World!</h1>
-</body>
-</html>
+## Import depedencies
+
+```javascript
+const { app, BrowserWindow } = require('electron')
 ```
 
-#### Start main process
+---
 
-```js
+### Create Window when Application ready
+
+```javascript
 const { app, BrowserWindow } = require('electron')
 
 let win
@@ -75,7 +103,16 @@ app.on('ready', () => {
   createWindow()
 })
 
-function createWindow() {
+```
+
+---
+
+## Open Window
+
+```javascript
+let win
+
+function createWindow () {
   win = new BrowserWindow({ width: 800, height: 600 })
 
   win.loadURL(
@@ -85,54 +122,138 @@ function createWindow() {
       slashes: true
     })
   )
-
-  // win.webContents.openDevTools()
-
-  win.on('closed', () => {
-    win = null
-  })
 }
 ```
 
-#### Spawn Child Process with Nodje.js
+---
 
-https://nodejs.org/dist/latest-v8.x/docs/api/child_process.html#child_process_child_process
+## Create UI
 
-```js
-const { spawn } = require('child_process');
-const ls = spawn('ls', ['-lh', '/usr']);
-
-ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
-});
-
-ls.stderr.on('data', (data) => {
-  console.log(`stderr: ${data}`);
-});
-
-ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
-});
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello CampJS!</title>
+</head>
+<body>
+  <h1>Hello CampJS!</h1>
+</body>
+</html>
 ```
 
-#### Golang Cross Compiling
+---
 
-https://github.com/golang/go/wiki/WindowsCrossCompiling
+# Demo
+
+---
+
+# [fit] Let's build something useful
+
+---
+
+![inline](./imgs/ytdl.png)
+
+---
+
+# UI
+
+```HTML
+<main>
+  <input id="input" type="text" autofocus placeholder="Paste youtube url here" />
+  <button id="download">Download</button>
+  <div id="status">
+    <div>
+</main>
+```
+
+---
+
+## Hook up with click event
+
+```js
+const downloadButton = document.getElementById('download')
+const urlInput = document.getElementById('input')
+
+downloadButton.addEventListener('click', startDownload)
+const startDownload = () => {
+  const youtubeUrl = urlInput.value
+  if (!youtubeUrl) return
+  console.log(`downloading from ${youtubeUrl}`)
+}
+```
+
+---
+
+## [fit] How do we download videos from Youtube? 🤔
+
+---
+
+> youtube-dl is a command-line program to download videos from YouTube.com and a few more sites. It requires the Python interpreter (2.6, 2.7, or 3.2+), and it is not platform specific.
+
+[youtube-dl](https://rg3.github.io/youtube-dl/)
+
+---
+
+## Spawn Child Process with Node.js
+
+```js
+const { spawn } = require('child_process')
+const ls = spawn('ls', ['-lh', '/usr'])
+
+ls.stdout.on('data', (data) => {
+  console.log(`stdout: ${data}`)
+})
+
+ls.stderr.on('data', (data) => {
+  console.log(`stderr: ${data}`)
+})
+
+ls.on('close', (code) => {
+  console.log(`child process exited with code ${code}`)
+})
+```
+
+---
+
+# [fit] But `youtube-dl` is not cross platform 😕
+
+---
+
+## Golang
 
 ```go
-$ cat hello.go
 package main
 
 import "fmt"
 
 func main() {
-        fmt.Printf("Hello\n")
+  fmt.Printf("Hello\n")
 }
+```
+
+---
+
+### Compile
+
+```
+go build main.go
+```
+
+### Cross Compile
+
+```
 $ GOOS=windows GOARCH=386 go build -o hello.exe hello.go
 ```
 
-Download a youtube video with [ytdl](https://github.com/rylio/ytdl
-)
+---
+
+# [fit] What if there's a Golang alternative for youtube-dl?
+
+---
+
+
+## Download a youtube video with ytdl
 
 ```js
 const { spawn } = require('child_process')
@@ -151,9 +272,27 @@ const dl = spawn(ytdlPath, [
 ])
 ```
 
-#### Communication between two processes
+---
 
-Main process
+```js
+let ytdlPath = path.join(__dirname, './bin/ytdl')
+if (process.platform === 'win32') {
+  ytdlPath += '.exe'
+}
+```
+
+---
+
+
+### [fit] Communication between two processes
+
+---
+
+![inline](./imgs/ipc.png)
+
+---
+
+## Main process
 
 ```js
 const ipc = require('electron').ipcMain
@@ -163,24 +302,24 @@ ipc.on('asynchronous-message', function (event, arg) {
 })
 ```
 
-Renderer process
+---
+
+## Renderer process
 
 ```js
 const ipc = require('electron').ipcRenderer
 
-const asyncMsgBtn = document.getElementById('async-msg')
-
-asyncMsgBtn.addEventListener('click', function () {
-  ipc.send('asynchronous-message', 'ping')
-})
-
 ipc.on('asynchronous-reply', function (event, arg) {
   const message = `Asynchronous message reply: ${arg}`
-  document.getElementById('async-reply').innerHTML = message
+  console.log('Reply message', message)
 })
 ```
 
-#### Hook `ytdl` messages with `stdout` and `stderr`
+---
+
+### Hook `ytdl` messages with `stdout` and `stderr`
+
+---
 
 Main process
 
@@ -194,13 +333,7 @@ ipcMain.on('start-download', (event, arg) => {
     arg
   ])
 
-  console.log('[electron youtube-dl] Starting download...')
-  event.sender.send(
-    'download-status',
-    '[electron youtube-dl] Starting download...'
-  )
   dl.stdout.on('data', data => {
-    console.log(`stdout: ${data}`)
     event.sender.send('download-status', formatMsg(data.toString()))
   })
 
@@ -209,8 +342,6 @@ ipcMain.on('start-download', (event, arg) => {
   })
 
   dl.on('close', code => {
-    // event.sender.send('download-success')
-    console.log(`child process exited with code ${code}`)
     event.sender.send(
       'download-status',
       '[electron youtube-dl] Finished download'
@@ -219,27 +350,23 @@ ipcMain.on('start-download', (event, arg) => {
 })
 ```
 
+---
+
 Renderer process
 
 ```js
 const ipc = require('electron').ipcRenderer
 
-const downloadButton = document.getElementById('download')
-const urlInput = document.getElementById('input')
-const statusBar = document.getElementById('status')
-const startDownload = () => {
-  const youtubeUrl = urlInput.value
-  if (!youtubeUrl) return
-  ipc.send('start-download', youtubeUrl)
-}
+ipc.on('download-status', (event, arg) => {
+  console.log('Download status:', arg)
+})
+```
 
-downloadButton.addEventListener('click', startDownload)
-urlInput.onkeypress = event => {
-  if (event.keyCode === 13) {
-    startDownload()
-  }
-}
+---
 
+Show message in the UI
+
+```js
 ipc.on('download-status', (event, arg) => {
   const msgElement = document.createElement('span')
   msgElement.innerText = arg
@@ -249,59 +376,26 @@ ipc.on('download-status', (event, arg) => {
 })
 ```
 
-#### Keyboard support
+---
 
-```js
-// enable copy and paste
-const template = [
-  {
-    label: 'Edit',
-    submenu: [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
-      { role: 'pasteandmatchstyle' },
-      { role: 'delete' },
-      { role: 'selectall' }
-    ]
-  },
-  {
-    label: 'View',
-    submenu: [
-      { role: 'reload' },
-      { role: 'forcereload' },
-      { role: 'toggledevtools' },
-      { type: 'separator' },
-      { role: 'resetzoom' },
-      { role: 'zoomin' },
-      { role: 'zoomout' },
-      { type: 'separator' },
-      { role: 'togglefullscreen' }
-    ]
-  },
-  {
-    role: 'window',
-    submenu: [{ role: 'minimize' }, { role: 'close' }]
-  }
-]
+## Demo
 
-// make sure it runs on app `ready`
-app.on('ready', () => {
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-  createWindow()
-})
-```
+---
 
-#### Writting Command line tools with Electron
+## No Demo :(
 
-Electron CLI
+---
+
+![inline](campjs.mp4)
+
+---
+
+## [fit] Writting Command line tools with Electron
+
+---
 
 ```sh
-electron --help
+$ electron --help
 Electron 1.6.11 - Build cross platform desktop apps with JavaScript, HTML, and CSS
 
   Usage: electron [options] [path]
@@ -322,7 +416,9 @@ Electron 1.6.11 - Build cross platform desktop apps with JavaScript, HTML, and C
     --abi                 Print the application binary interface.
 ```
 
-[parse argument options](https://www.npmjs.com/package/minimist)
+---
+
+### Parse command line argument options
 
 ```js
 const minimist = require('minimist')
@@ -335,7 +431,9 @@ $ node ./bin/cmd.js --input=https://fraserxu.me --output=fraserxu.pdf
 $ { argv: { _: [], input: 'https://fraserxu.me', output: 'fraserxu.pdf' } }
 ```
 
-Prepare boilerplate to launch electron from CLI
+---
+
+### Prepare boilerplate to launch electron from CLI
 
 ```js
 #!/usr/bin/env node
@@ -349,23 +447,16 @@ const generatorPath = path.resolve(__dirname, '../pdf.js')
 let args = process.argv.slice(2)
 args.unshift(generatorPath)
 
-// node ./bin/cmd.js --input=https://fraserxu.me --output=fraserxu.pdf
-// return electron pdf.js --input=https://fraserxu.me --output=fraserxu.me.pdf
-
 const cp = spawn(electronPath, args, {
   //       stdin,     stdout,    stderr
   stdio: ['inherit', 'inherit', 'pipe', 'ipc']
 })
 
-cp.stderr.on('data', data => {
-  const str = data.toString('utf8')
-  // it's Chromium, don't do anything
-  if (str.match(/^\[\d+:\d+/)) return
-  process.stderr.write(data)
-})
 ```
 
-And then we can creat our pdf generator
+---
+
+### And then we can creat our pdf generator
 
 ```js
 const fs = require('fs')
@@ -382,6 +473,13 @@ const {
 
 let win
 
+app.on('ready', createWindow)
+
+```
+
+---
+
+```js
 const createWindow = () => {
   win = new BrowserWindow({
     show: false
@@ -408,18 +506,213 @@ const createWindow = () => {
     })
   })
 }
-
-app.on('ready', createWindow)
 ```
 
-Result
+---
 
-```shell
+# Demo
+
+---
+
+## Result
+
+```
 $ node ./bin/cmd.js --input=http://viii.campjs.com/ --output=viii.campjs.com.pdf
 success write file to  /Users/fraserxu/Desktop/viii.campjs.com.pdf
 ```
 
-#### Running Headless JavaScript Testing with Electron On Any CI Server
+---
+
+## electron-pdf
+
+> A command line tool to generate PDF from URL, HTML or Markdown files.
+-- https://github.com/fraserxu/electron-pdf
+
+---
+
+# [fit] "Abusing" the Browser API and Create Mad Science
+
+---
+
+# 🎩
+
+* Access to file system
+* getUserMedia
+* WebRTC
+* WebRTC data channels
+
+---
+
+## getUserMedia()
+
+```js
+const getMedia = require('getusermedia')
+const recorder = require('media-recorder-stream')
+
+getMedia(mediaConstraints, (err, media) => {
+  if (err) throw err
+
+  // record media every 5s
+  let stream = recorder(media, {interval: 5000})
+
+  stream.on('data', data => {
+    // figure out a way to distribute it 🤔
+  })
+})
+```
+
+---
+
+## [fit] 1. With WebTorrent
+
+---
+
+```js
+const WebTorrent = require('webtorrent')
+
+const client = new WebTorrent()
+
+client.seed(buffer, torrent => {
+  console.log('Client is seeding: ', torrent.magnetURI)
+})
+```
+
+---
+
+### Distribute the torrent information through WebSocket
+
+```js
+const socket = io()
+const torrentsSocket = io('/torrents')
+
+client.seed(buffer, torrent => {
+  // send torrent to the socket channel
+  io.emit('torrent', torrent)
+})
+```
+
+---
+
+## Download torrent and play
+
+```js
+const WebTorrent = require('webtorrent')
+const socket = io()
+const torrentsSocket = io('/torrents')
+
+torrentsSocket.on('torrent', (id, torrent) => {
+  // download torrent
+  const client = new WebTorrent()
+
+  client.add(torrentmagnetURI)
+
+  client.on('download', function (bytes) {
+    // play video bytes
+  })
+})
+```
+
+---
+
+## See it in action
+
+> Scalable peer-to-peer live video streaming
+-- https://nilejs.com
+
+---
+
+## [fit] 2. With Dat
+
+---
+
+# Hypercore
+
+> Hypercore is a secure, distributed append-only log.
+
+---
+
+```js
+const hypercore = require('hypercore')
+
+let feed = hypercore(`./streams/broadcasted/${ Date.now ()}`)
+
+stream.on('data', data => {
+  // figure out a way to distribute it 🤔
+  feed.append(data)
+})
+```
+
+---
+
+# Hyperdiscovery
+
+> Join the p2p swarm for hypercore and hyperdrive feeds. Uses discovery-swarm under the hood.
+
+---
+
+```js
+const hyperdiscovery = require('hyperdiscovery')
+
+let feed = hypercore(`./streams/broadcasted/${ Date.now ()}`)
+let swarm
+
+// when feed is ready, join p2p swarm
+feed.on('ready', function () {
+  swarm = hyperdiscovery(feed, {live: true})
+})
+
+```
+
+---
+
+# Viewer
+
+```js
+const hypercore = require('hypercore')
+const hyperdiscovery = require('hyperdiscovery')
+
+// create local feed
+let feed = hypercore(
+  localKey,        // the directory to store local data
+  hash,            // the hash to the feed
+  { sparse: true } // mark the entire feed to be downloaded
+)
+
+let swarm
+feed.on('ready', () => {
+  // start to sync data!
+  swarm = hyperdiscovery(feed, {live: true})
+})
+```
+
+---
+
+# Play it
+
+```js
+// play with vlc
+const args = [
+  '--play-and-exit',
+  '--video-on-top',
+  '--quiet',
+  '--meta-title=campjs',
+  dataPath
+]
+vlcCommand((err, cmd) => {
+  cp.spawn(cmd, args)
+})
+```
+
+---
+
+## hypervision
+
+> hypervision is a desktop application that lets you both watch and broadcast p2p live streams.
+-- https://github.com/mafintosh/hypervision
+
+---
+
+### Running Headless JavaScript Test
 
 ```js
 process.stdin
@@ -429,8 +722,48 @@ process.stdin
   })
 ```
 
+---
+
+### Links
+
 * [Running Headless JavaScript Testing with Electron On Any CI Server](https://webuild.envato.com/blog/running-headless-javascript-testing-with-electron-on-any-ci-server/)
 * [tape-run](https://github.com/juliangruber/tape-run)
 * [electron-mocha](https://github.com/jprichardson/electron-mocha)
 
-#### "Abusing" the Browser API and Create Mad Science
+---
+
+## electron-speech
+
+> Speech recognition in node and the browser using Electron.
+-- https://github.com/noffle/electron-speech
+
+```js
+if ('webkitSpeechRecognition' in window) {
+  var recognition = new webkitSpeechRecognition()
+  recognition.continuous = true
+  recognition.interimResults = true
+
+  recognition.onstart = function() { /* */ }
+  recognition.onresult = function(event) { /* */ }
+  recognition.onerror = function(event) { /* */ }
+  recognition.onend = function() { /* */ }
+}
+```
+
+---
+
+# Links
+
+* https://electron.atom.io/docs/tutorial/quick-start/
+* https://github.com/electron/electron-api-demos
+* http://jlord.us/essential-electron/ [^1]
+
+[^1]: All the nice diagrams in this slides are from Jlord
+
+---
+
+![inline](./imgs/twitter.png)
+
+---
+
+# [fit] Thanks

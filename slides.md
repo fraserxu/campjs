@@ -754,10 +754,11 @@ if ('webkitSpeechRecognition' in window) {
 
 # Links
 
-Quick Start
-
 * https://electron.atom.io/docs/tutorial/quick-start/
 * https://github.com/electron/electron-api-demos
+* http://jlord.us/essential-electron/ [^1]
+
+[^1]: All the nice diagrams in this slides are from Jlord
 
 ---
 
